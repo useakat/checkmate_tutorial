@@ -1,0 +1,13 @@
+## General Options
+[Mandatory Parameters]
+Name: test2
+Analyses: atlas_1402_7029
+
+[Optional Parameters]
+OutputDirectory: results
+
+## Process Information (Each new process 'X' must start with [X])
+[chi+chi0]
+XSect: 2.4*FB
+XSectErr: 0*PB
+Events: chi+chi0_2.hepmc

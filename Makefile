@@ -1,5 +1,5 @@
 # Makefile is a part of the PYTHIA event generator.
-# Copyright (C) 2014 Torbjorn Sjostrand.
+# Copyright (C) 2015 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, September 2014.
@@ -19,15 +19,14 @@
 
 # Handle GZIP support.
 ifeq ($(GZIP_USE),true)
-  CXX_COMMON+= -DGZIPSUPPORT
-  CXX_COMMON+= -L$(BOOST_LIB) -Wl,-rpath $(BOOST_LIB) -lboost_iostreams
+  CXX_COMMON+= -DGZIPSUPPORT -I$(GZIP_INCLUDE)
   CXX_COMMON+= -L$(GZIP_LIB) -Wl,-rpath $(GZIP_LIB) -lz
 endif
 
 # Check distribution (use local version first, then installed version).
-ifneq ("$(wildcard ../../../lib/libpythia8.a)","")
-  PREFIX_LIB=../../../lib
-  PREFIX_INCLUDE=../../../include
+ifneq ("$(wildcard ../lib/libpythia8.a)","")
+  PREFIX_LIB=../lib
+  PREFIX_INCLUDE=../include
 endif
 CXX_COMMON:=-I$(PREFIX_INCLUDE) $(CXX_COMMON) -Wl,-rpath $(PREFIX_LIB) -ldl
 
@@ -57,18 +56,35 @@ $(PREFIX_LIB)/libpythia8.a :
 main% : main%.cc $(PREFIX_LIB)/libpythia8.a
 	$(CXX) $^ -o $@ $(CXX_COMMON)
 
-# User-written examples for tutorials, without external dependencies.
-mymain% : mymain%.cc $(PREFIX_LIB)/libpythia8.a
-	$(CXX) $^ -o $@ $(CXX_COMMON)
-
 # HEPMC2.
-main41 main42 main61 main62 main85 main86 main87 main88 main89: $$@.cc\
+main24_kai main41 main42 main43 main85 main86 main87 main88 main89: $$@.cc\
 	$(PREFIX_LIB)/libpythia8.a
 ifeq ($(HEPMC2_USE),true)
 	$(CXX) $^ -o $@ -I$(HEPMC2_INCLUDE) $(CXX_COMMON)\
 	 -L$(HEPMC2_LIB) -Wl,-rpath $(HEPMC2_LIB) -lHepMC
 else
 	@echo "Error: $@ requires HEPMC2"
+endif
+
+# PROMC.
+main46: $$@.cc $(PREFIX_LIB)/libpythia8.a
+ifeq ($(PROMC_USE),true)
+	$(CXX) $^ -o $@ -I$(PROMC_INCLUDE)/src -I$(PROMC_INCLUDE)/include\
+	 $(CXX_COMMON) -DPROMC=\"$(PROMC_INCLUDE)\" -Wno-long-long\
+	 -L$(PROMC_LIB) -lpromc -lprotoc -lprotobuf -lprotobuf-lite -lcbook
+else
+	@echo "Error: $@ requires PROMC"
+endif
+
+# EVTGEN (and HEPMC2).
+main48: $$@.cc $(PREFIX_LIB)/libpythia8.so
+ifeq ($(EVTGEN_USE)$(HEPMC2_USE),truetrue)
+	$(CXX) $< -o $@ -I$(EVTGEN_INCLUDE) $(CXX_COMMON)\
+	 -DEVTGEN_PYTHIA -DEVTGEN_EXTERNAL -Wl,-rpath $(HEPMC2_LIB)\
+	 -L$(PREFIX_LIB) -Wl,-rpath $(PREFIX_LIB) -lpythia8\
+	 -L$(EVTGEN_LIB) -Wl,-rpath $(EVTGEN_LIB) -lEvtGenExternal -lEvtGen
+else
+	@echo "Error: $@ requires EVTGEN and HEPMC2"
 endif
 
 # FASTJET3.
@@ -108,8 +124,18 @@ else
 	@echo "Error: $@ requires ROOT"
 endif
 
+# User-written examples for tutorials, without external dependencies.
+mymain% : mymain%.cc $(PREFIX_LIB)/libpythia8.a
+	$(CXX) $^ -o $@ $(CXX_COMMON)
+
+# Internally used tests, without external dependencies.
+test% : test%.cc $(PREFIX_LIB)/libpythia8.a
+	$(CXX) $^ -o $@ $(CXX_COMMON)
+
 # Clean.
 clean:
-	@rm -f main[0-9][0-9]; rm -f out[0-9][0-9]; rm -f weakbosons.lhe;\
-	rm -f mymain[0-9][0-9]; rm -f myout[0-9][0-9]; rm -f hist.root;\
+	@rm -f main[0-9][0-9]; rm -f out[0-9][0-9];\
+	rm -f mymain[0-9][0-9]; rm -f myout[0-9][0-9];\
+	rm -f test[0-9][0-9][0-9]; rm -f out[0-9][0-9][0-9];\
+	rm -f weakbosons.lhe; rm -f Pythia8.promc; rm -f hist.root;\
 	rm -f *~; rm -f \#*; rm -f core*; rm -f *Dct.*
