@@ -1,11 +1,13 @@
 *HOW TO RUN
-     ln -s $CHECKMATE_DIR/bin/CheckMATE .
-     modify PATHs in Makefile.inc according to your environment
+     < PYTHAI8 >
+     cp $PYTHIA_DIR/share/Pythia8/examples/Makefile.inc .
 
-     modify main24_kai.cmnd as you want
      make main24_kai
-     ./main24_kai main24_kai.cmnd OUTPUT_HEPMC
+     modify main24_kai.cmnd as you want
+     ./main24_kai main24_kai.cmnd OUTPUT.hepmc
 
+     < CheckMATE >
+     ln -s $CHECKMATE_DIR/bin/CheckMATE .
      modify param.dat as you want
      ./CheckMATE param.dat
 
