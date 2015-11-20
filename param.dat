@@ -1,13 +1,18 @@
 ## General Options
 [Mandatory Parameters]
-Name: test2
+#Name: chi+chi0_mg5
+Name: chi+chi0_50k
 Analyses: atlas_1402_7029
 
 [Optional Parameters]
 OutputDirectory: results
+TempMode: True
 
 ## Process Information (Each new process 'X' must start with [X])
 [chi+chi0]
-XSect: 2.4*FB
+XSect: 2.42365*FB
 XSectErr: 0*PB
-Events: chi+chi0_2.hepmc
+#Events: chi+chi0.hepmc
+Events: chi+chi0_50k.hepmc
+#Events: pp_chi+chi0/Events/run_01/tag_1_pythia_events.hep
+#Events: pp_chi+chi0/Events/run_02/tag_1_pythia_events.hep
